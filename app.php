@@ -73,6 +73,7 @@ function calendar_icon()
 add_action( 'UI_HEAD' , 'calendar_css' );
 function calendar_css()
 {
+	echo '<link rel="stylesheet" href="plugin/calendar/view/css/bootstrap-datetimepicker.min.css">';
 	echo '<link rel="stylesheet" href="plugin/calendar/view/css/calendar.css">';
 }
 
@@ -80,7 +81,10 @@ function calendar_css()
 add_action( 'UI_FOOTER_AFTER' , 'calendar_js' );
 function calendar_js()
 {
-	echo '<script type="text/javascript" src="plugin/calendar/view/js/underscore-min.js"></script>
+	echo '
+	<script type="text/javascript" src="plugin/calendar/view/js/bootstrap-datetimepicker.min.js"></script>
+	<script type="text/javascript" src="plugin/calendar/view/js/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="plugin/calendar/view/js/underscore-min.js"></script>
 	<script type="text/javascript" src="plugin/calendar/view/js/jstz.min.js"></script>
 	<script type="text/javascript" src="plugin/calendar/view/js/zh-CN.js"></script>
 	<script type="text/javascript" src="plugin/calendar/view/js/calendar.js"></script>
@@ -90,19 +94,7 @@ function calendar_js()
 
 add_action( 'PLUGIN_CALENDAR' , 'calendar_view' );
 function calendar_view()
-{
-	$data['top'] = $data['top_title'] = __('PL_CALENDAR_TITLE');
-	//$data['uids'] = get_data("SELECT `id` FROM `user` WHERE `is_closed` = 0 AND `level` > 0 ");
-	$data['js'][] = 'jquery.masonry.min.js';
-	$todo_lists = get_data("select distinct todo.id,content,status,user.name from user,todo left join todo_user on todo_user.tid=todo.id where todo.owner_uid=user.id");
-	
-	$todo_groups = array();
-	foreach($todo_lists as $todo){
-		preg_match('/(?P<month>\d+)\.(?P<day>\d+)/', $todo['content'], $matches);
-		//$matches['month'] $matches['day']
-		$todo_groups[$matches['month']][$matches['day']][] = $todo;
-	}
-	$data['todo_lists'] = $todo_groups;
+{	$data['top'] = $data['top_title'] = __('PL_CALENDAR_TITLE');
 	return render( $data , 'web' , 'plugin' , 'calendar' );
 }
 

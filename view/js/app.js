@@ -4,17 +4,7 @@
 	"use strict";
 
 	var options = {
-		events_source: [
-			{
-				"id": 293,
-				"title": "TEAMTOY",
-				"url": "http://example.com",
-				"class": "event-important",
-				"modal": "#events-modal",
-				"start": 1395948567000, // Milliseconds
-				"end":   1396948567000 // Milliseconds
-			}
-		],
+		events_source: "plugin/calendar/todos.api.php",
 		view: 'month',
 		tmpl_path: 'plugin/calendar/bootstrap-calendar/',
 		tmpl_cache: false,
@@ -61,6 +51,13 @@
 		$this.click(function() {
 			calendar.view($this.data('calendar-view'));
 		});
+	});
+	
+	$(".form_datetime").datetimepicker({
+		format: 'yyyy-mm-dd hh:ii:ss',
+		autoclose: true,
+		weekStart: 1,
+		language: 'zh-CN'
 	});
 
 	
