@@ -27,15 +27,32 @@
 onclick="update_timeline(<?=$data['tid']?>, $('#priority').val(), $('#exp_start_time').val(), $('#exp_finish_time').val())"
 ><?=__('PL_CALENDAR_SAVE')?></button>
 <script>
-$(".form_datetime").datetimepicker({
+
+$("#exp_start_time").datetimepicker({
    format: 'yyyy-mm-dd hh:ii:ss',
    autoclose: true,
    weekStart: 1,
-   language: 'zh-CN'
+   language: 'zh-CN',
+   startDate: new Date().Format("yyyy-MM-dd")
+}).on('changeDate', function(ev){
+   alert(ev.date.Format("yyyy-MM-dd"));
+   $('#exp_finish_time').datetimepicker('remove');
+   $('#exp_finish_time').datetimepicker({
+	  format: 'yyyy-mm-dd hh:ii:ss',
+	  autoclose: true,
+	  weekStart: 1,
+	  language: 'zh-CN',
+	  startDate: ev.date.Format("yyyy-MM-dd")
+   });
 });
 
-//TODO: start time and finish time check
-
+$('#exp_finish_time').datetimepicker({
+   format: 'yyyy-mm-dd hh:ii:ss',
+   autoclose: true,
+   weekStart: 1,
+   language: 'zh-CN',
+   startDate: new Date().Format("yyyy-MM-dd")
+});
 
 
 </script>

@@ -1,5 +1,10 @@
 <?php
 
+$from = date("Y-m-d 00:00:00", int($_GET['from'])/1000);
+$to = date("Y-m-d 00:00:00", int($_GET['to'])/1000);
+
+
+
 $todos = array();
 
 $todos[] = array(
