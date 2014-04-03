@@ -21,4 +21,4 @@ $result = array(
 echo json_encode($result);
 
 
-$todo_lists = get_data("select distinct todo.id,content,status,user.name from user,todo left join todo_user on todo_user.tid=todo.id where todo.owner_uid=user.id");
+//$todo_lists = get_data("select distinct todo.id,content,status,user.name from user,todo left join todo_user on todo_user.tid=todo.id where todo.owner_uid=user.id");

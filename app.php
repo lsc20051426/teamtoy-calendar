@@ -106,19 +106,17 @@ function calendar_js()
 add_action( 'UI_TODO_DETAIL_COMMENTBOX_AFTER' , 'calendar_input' );
 function calendar_input($data)
 {
+	$tid = $data['id'];
+	$sql = "select id,tid,priority,exp_start_time,exp_finish_time  from `todo_timetable` where tid='{$tid}'";
+	$time = get_line($sql);
+	$data['calendar'] = $time;
 	echo render_html($data, dirname(__FILE__).DS.'view'.DS.'calendar_input.tpl.html');
 }
 
 add_action( 'PLUGIN_CALENDAR_UPDATE' , 'plugin_calendar_update' );
 function plugin_calendar_update()
 {
-	#TODO: get parameter from request and set in params 
-	$params = array(
-		'exp_start_time'=> v('exp_start_time'),
-		'exp_finish_time'=> v('exp_finish_time'),
-		'priority'=> v('priority')
-	);
-	if($content = send_request( "todo_calendar_update" ,  $params , token()  ))
+	if($content = send_request( "todo_calendar_update" ,  array() , token()  ))
 	{
 		$data = json_decode($content , 1);
 		if( $data['err_code'] == 0 )
@@ -136,12 +134,19 @@ add_action( 'API_TODO_CALENDAR_UPDATE' , 'api_todo_calendar_update' );
 function api_todo_calendar_update()
 {
 	#TODO: create and update
-	$params = array(
-		'exp_start_time'=> v('exp_start_time'),
-		'exp_finish_time'=> v('exp_finish_time'),
-		'priority'=> v('priority')
-	);
-	return apiController::send_result($params);
+	$tid = v('tid');
+	$exp_start_time =  v('exp_start_time');
+	$exp_finish_time = v('exp_finish_time');
+	$priority = v('priority');
+	$sql = "select id from `todo_timetable` where tid='{$tid}'";
+	$time = get_line($sql);
+	if($time){
+		$timeid = $time['id'];
+		$sql = "update `todo_timetable` set exp_start_time='{$exp_start_time}', exp_finish_time='{$exp_finish_time}', priority='{$priority}' where id = '{$timeid}'";
+	}else{
+		$sql = "insert into todo_timetable(`tid`,`priority`,`exp_start_time`,`exp_finish_time`) values({$tid}, '{$priority}', '{$exp_start_time}', '{$exp_finish_time}')";
+	}
+	return apiController::send_result(run_sql($sql));
 }
 
 add_action( 'PLUGIN_CALENDAR' , 'calendar_view' );

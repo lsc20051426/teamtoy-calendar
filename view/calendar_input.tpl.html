@@ -2,21 +2,25 @@
 <div class="input-append text" >
    <label><?=__('PL_CALENDAR_PRIORITY')?>:</label>
    <select id="priority" name="priority">
-	  <option value="HIGH"><?=__('PL_CALENDAR_PRIORITY_HIGH')?></option>
-	  <option value="MEDIUM"><?=__('PL_CALENDAR_PRIORITY_MEDIUM')?></option>
-	  <option value="LOW" selected="selected"><?=__('PL_CALENDAR_PRIORITY_LOW')?></option>
+	  <option value="HIGH" <?php if($data['calendar']['priority']=="HIGH"){?>selected="selected"<?php }?>
+	  ><?=__('PL_CALENDAR_PRIORITY_HIGH')?></option>
+	  <option value="MEDIUM" <?php if($data['calendar']['priority']=="MEDIUM"){?>selected="selected"<?php }?>
+	  ><?=__('PL_CALENDAR_PRIORITY_MEDIUM')?></option>
+	  <option value="LOW" <?php if(empty($data['calendar']['priority'])||$data['calendar']['priority']=="LOW"){?>
+		 selected="selected" <?php }?>
+	  ><?=__('PL_CALENDAR_PRIORITY_LOW')?></option>
    </select>
 </div>
 
 <div class="input-append date form_datetime">
    <label><?=__('PL_CALENDAR_EXPECTE_START_TIME')?>:</label>
-   <input size="16" type="text" name="exp_start_time" id="exp_start_time">
+   <input size="16" type="text" name="exp_start_time" id="exp_start_time" value="<?= $data['calendar']['exp_start_time']?>">
    <span class="add-on"><i class="icon-th"></i></span>
 </div>
 
 <div class="input-append date form_datetime">
    <label><?=__('PL_CALENDAR_EXPECT_FINISH_TIME')?>:</label>
-   <input size="16" type="text" name="exp_finish_time" id="exp_finish_time">
+   <input size="16" type="text" name="exp_finish_time" id="exp_finish_time" value="<?= $data['calendar']['exp_finish_time']?>">
    <span class="add-on"><i class="icon-th"></i></span>
 </div>
 <button class="btn" type="button" id="update_todo_time"
