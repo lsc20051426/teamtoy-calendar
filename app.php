@@ -20,7 +20,7 @@ if( !my_sql("SHOW COLUMNS FROM `todo_timetable`") )
 	$sql = "CREATE TABLE IF NOT EXISTS `todo_timetable` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tid` int(11) NOT NULL,
-  `priority` varchar(10) NOT NULL DEFAULT 'HIGH'
+  `priority` varchar(10) NOT NULL DEFAULT 'HIGH',
   `exp_start_time` datetime NOT NULL,
   `act_start_time` datetime,
   `exp_finish_time` datetime NOT NULL,
@@ -39,7 +39,18 @@ $plugin_lang['zh_cn'] = array
 (
 	'PL_CALENDAR_TITLE' => 'TODO日历',
 	'PL_CALENDAR_TODO_TIME' => '最后活动时间 - %s',
-	'PL_CALENDAR_NO_TODO_NOW' => '暂无TODO'
+	'PL_CALENDAR_NO_TODO_NOW' => '暂无TODO',
+	'PL_CALENDAR_EXPECT_FINISH_TIME' => '预期完成时间',
+	'PL_CALENDAR_ACTUAL_FINISH_TIME' => '实际完成时间',
+	'PL_CALENDAR_EXPECTE_START_TIME' => '预期开始时间',
+	'PL_CALENDAR_ACTUAL_START_TIME' => '实际开始时间',
+	'PL_CALENDAR_PRIORITY' => '优先级',
+	'PL_CALENDAR_PRIORITY_HIGH' => '高',
+	'PL_CALENDAR_PRIORITY_MEDIUM' => '中',
+	'PL_CALENDAR_PRIORITY_LOW' => '低',
+	'PL_CALENDAR_SAVE' => '保存',
+	'PL_CALENDAR_SAVE_SUCCESS' => '保存成功',
+	
 );
 
 $plugin_lang['zh_tw'] = array
@@ -92,9 +103,50 @@ function calendar_js()
 	';
 }
 
-add_action( 'PLUGIN_CALENDAR' , 'calendar_view' );
-function calendar_view()
-{	$data['top'] = $data['top_title'] = __('PL_CALENDAR_TITLE');
-	return render( $data , 'web' , 'plugin' , 'calendar' );
+add_action( 'UI_TODO_DETAIL_COMMENTBOX_AFTER' , 'calendar_input' );
+function calendar_input($data)
+{
+	echo render_html($data, dirname(__FILE__).DS.'view'.DS.'calendar_input.tpl.html');
 }
 
+add_action( 'PLUGIN_CALENDAR_UPDATE' , 'plugin_calendar_update' );
+function plugin_calendar_update()
+{
+	#TODO: get parameter from request and set in params 
+	$params = array(
+		'exp_start_time'=> v('exp_start_time'),
+		'exp_finish_time'=> v('exp_finish_time'),
+		'priority'=> v('priority')
+	);
+	if($content = send_request( "todo_calendar_update" ,  $params , token()  ))
+	{
+		$data = json_decode($content , 1);
+		if( $data['err_code'] == 0 )
+		{
+			return render( array( 'code' => 0 , 'data' =>  $data['data'] ) , 'rest' );
+		}
+		else
+			return render( array( 'code' => 100002 , 'message' => 'can not save data' ) , 'rest' );
+		//return render( array( 'code' => 0 , 'data' => $data['data'] ) , 'rest' );
+	}
+	return render( array( 'code' => 100001 , 'message' => 'can not get api content' ) , 'rest' );
+}
+
+add_action( 'API_TODO_CALENDAR_UPDATE' , 'api_todo_calendar_update' );
+function api_todo_calendar_update()
+{
+	#TODO: create and update
+	$params = array(
+		'exp_start_time'=> v('exp_start_time'),
+		'exp_finish_time'=> v('exp_finish_time'),
+		'priority'=> v('priority')
+	);
+	return apiController::send_result($params);
+}
+
+add_action( 'PLUGIN_CALENDAR' , 'calendar_view' );
+function calendar_view()
+{
+	$data['top'] = $data['top_title'] = __('PL_CALENDAR_TITLE');
+	return render( $data , 'web' , 'plugin' , 'calendar' );
+}

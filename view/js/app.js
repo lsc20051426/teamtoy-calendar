@@ -1,3 +1,26 @@
+function update_timeline(tid, priority, exp_start_time, exp_finish_time)
+{
+	var url = '?c=plugin&a=calendar_update' ;
+	var params = {
+		'tid': tid,
+		'exp_start_time': exp_start_time,
+		'exp_finish_time': exp_finish_time,
+		'priority': priority
+	};
+	$.post( url , params , function( data )
+	{
+		var data_obj = $.parseJSON( data );
+		 
+		if( data_obj.err_code == 0 )
+		{
+			$('#calendar-message')[0].innerText = "保存成功";
+		}
+		else
+		{
+			alert( __('JS_API_ERROR_INFO' , [ data_obj.err_code , data_obj.message ] ) );
+		}
+	} );
+}
 
 (function($) {
 
@@ -52,13 +75,5 @@
 			calendar.view($this.data('calendar-view'));
 		});
 	});
-	
-	$(".form_datetime").datetimepicker({
-		format: 'yyyy-mm-dd hh:ii:ss',
-		autoclose: true,
-		weekStart: 1,
-		language: 'zh-CN'
-	});
-
 	
 }(jQuery));
