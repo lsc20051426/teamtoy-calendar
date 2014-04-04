@@ -21,6 +21,23 @@ function update_timeline(tid, priority, exp_start_time, exp_finish_time)
 		}
 	} );
 }
+function calendar_start_todo(tid)
+{
+	var url = '?c=plugin&a=calendar_start_todo' ;
+	$.post( url , {'tid': tid} , function( data )
+	{
+		var data_obj = $.parseJSON( data );
+		if( data_obj.err_code == 0 )
+		{
+			$('#calendar_start_todo').remove();
+		}
+		else
+		{
+			alert( __('JS_API_ERROR_INFO' , [ data_obj.err_code , data_obj.message ] ) );
+		}
+	} );
+}
+
 
 (function($) {
 

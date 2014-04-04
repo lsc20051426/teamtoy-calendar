@@ -1,16 +1,4 @@
-<div id="calendar-message" style="color: green"></div>
-<div class="input-append text" >
-   <label><?=__('PL_CALENDAR_PRIORITY')?>:</label>
-   <select id="priority" name="priority">
-	  <option value="HIGH" <?php if($data['calendar']['priority']=="HIGH"){?>selected="selected"<?php }?>
-	  ><?=__('PL_CALENDAR_PRIORITY_HIGH')?></option>
-	  <option value="MEDIUM" <?php if($data['calendar']['priority']=="MEDIUM"){?>selected="selected"<?php }?>
-	  ><?=__('PL_CALENDAR_PRIORITY_MEDIUM')?></option>
-	  <option value="LOW" <?php if(empty($data['calendar']['priority'])||$data['calendar']['priority']=="LOW"){?>
-		 selected="selected" <?php }?>
-	  ><?=__('PL_CALENDAR_PRIORITY_LOW')?></option>
-   </select>
-</div>
+<div id="calendar-message" style="color: green;height: 20px;margin-top: 5px;"></div>
 
 <div class="input-append date form_datetime">
    <label><?=__('PL_CALENDAR_EXPECTE_START_TIME')?>:</label>
@@ -23,11 +11,24 @@
    <input size="16" type="text" name="exp_finish_time" id="exp_finish_time" value="<?= $data['calendar']['exp_finish_time']?>">
    <span class="add-on"><i class="icon-th"></i></span>
 </div>
-<button class="btn" type="button" id="update_todo_time"
-onclick="update_timeline(<?=$data['tid']?>, $('#priority').val(), $('#exp_start_time').val(), $('#exp_finish_time').val())"
-><?=__('PL_CALENDAR_SAVE')?></button>
-<script>
 
+<div class="input-append text" >
+   <label><?=__('PL_CALENDAR_PRIORITY')?>:</label>
+   <select id="priority" name="priority" style="width: 180px;margin-right: 10px;">
+	  <option value="HIGH" <?php if($data['calendar']['priority']=="HIGH"){?>selected="selected"<?php }?>
+	  ><?=__('PL_CALENDAR_PRIORITY_HIGH')?></option>
+	  <option value="MEDIUM" <?php if($data['calendar']['priority']=="MEDIUM"){?>selected="selected"<?php }?>
+	  ><?=__('PL_CALENDAR_PRIORITY_MEDIUM')?></option>
+	  <option value="LOW" <?php if(empty($data['calendar']['priority'])||$data['calendar']['priority']=="LOW"){?>
+		 selected="selected" <?php }?>
+	  ><?=__('PL_CALENDAR_PRIORITY_LOW')?></option>
+   </select>
+   <button class="btn" type="button" id="update_todo_time"
+   onclick="update_timeline(<?=$data['tid']?>, $('#priority').val(), $('#exp_start_time').val(), $('#exp_finish_time').val())"
+   ><?=__('PL_CALENDAR_SAVE')?></button>
+</div>
+
+<script>
 $("#exp_start_time").datetimepicker({
    format: 'yyyy-mm-dd hh:ii:ss',
    autoclose: true,

@@ -1,0 +1,11 @@
+<div class="input-append text" >
+   <?php
+   if(empty($data['calendar']['act_start_time'])){
+   ?>
+   <button class="btn" type="button" id="calendar_start_todo"
+   onclick="calendar_start_todo(<?=$data['tid']?>)"
+   ><?=__('PL_CALENDAR_START_TODO')?></button>
+   <?php }else{ ?>
+   <font><?=__('PL_CALENDAR_TODO_INPROGRESS')?></font>
+   <?php }?>
+</div>

@@ -50,6 +50,8 @@ $plugin_lang['zh_cn'] = array
 	'PL_CALENDAR_PRIORITY_LOW' => '低',
 	'PL_CALENDAR_SAVE' => '保存',
 	'PL_CALENDAR_SAVE_SUCCESS' => '保存成功',
+	'PL_CALENDAR_START_TODO' => '开始这个TODO',
+	'PL_CALENDAR_TODO_INPROGRESS' => 'TODO正在进行当中'
 	
 );
 
@@ -70,6 +72,8 @@ $plugin_lang['us_en'] = array
 
 plugin_append_lang( $plugin_lang );
 
+
+//在菜单栏添加一个链接
 add_action( 'UI_NAVLIST_LAST' , 'calendar_icon' );
 function calendar_icon()
 {
@@ -81,6 +85,7 @@ function calendar_icon()
 	<?php
 }
 
+//引入CSS文件
 add_action( 'UI_HEAD' , 'calendar_css' );
 function calendar_css()
 {
@@ -88,7 +93,7 @@ function calendar_css()
 	echo '<link rel="stylesheet" href="plugin/calendar/view/css/calendar.css">';
 }
 
-
+//引入JS文件
 add_action( 'UI_FOOTER_AFTER' , 'calendar_js' );
 function calendar_js()
 {
@@ -103,37 +108,40 @@ function calendar_js()
 	';
 }
 
-add_action( 'UI_TODO_DETAIL_COMMENTBOX_AFTER' , 'calendar_input' );
+//CTRL_DASHBOARD_TODO_DETAIL_RENDER_FILTER hook添加数据
+add_action( 'CTRL_DASHBOARD_TODO_DETAIL_RENDER_FILTER' , 'query_calendar' );
+function query_calendar($data){
+	$tid = $data['data']['id'];
+	$sql = "select id,tid,priority,act_start_time,exp_start_time,exp_finish_time  from `todo_timetable` where tid='{$tid}'";
+	$time = get_line($sql);
+	$data['data']['calendar'] = $time;
+	return $data;
+}
+
+//UI_TODO_DETAIL_ACTIONBOX_BEFORE hook添加按钮
+add_action( 'UI_TODO_DETAIL_ACTIONBOX_BEFORE' , 'calendar_start_button' );
+function calendar_start_button($data){
+	echo render_html($data, dirname(__FILE__).DS.'view'.DS.'calendar_start_button.tpl.html');
+}
+
+//UI_TODO_DETAIL_ACTIONBOX_AFTER hook展示时间信息
+add_action( 'UI_TODO_DETAIL_ACTIONBOX_AFTER' , 'calendar_input' );
 function calendar_input($data)
 {
-	$tid = $data['id'];
-	$sql = "select id,tid,priority,exp_start_time,exp_finish_time  from `todo_timetable` where tid='{$tid}'";
-	$time = get_line($sql);
-	$data['calendar'] = $time;
 	echo render_html($data, dirname(__FILE__).DS.'view'.DS.'calendar_input.tpl.html');
 }
 
+//调用CALENDAR_UPDATE API
 add_action( 'PLUGIN_CALENDAR_UPDATE' , 'plugin_calendar_update' );
 function plugin_calendar_update()
 {
-	if($content = send_request( "todo_calendar_update" ,  array() , token()  ))
-	{
-		$data = json_decode($content , 1);
-		if( $data['err_code'] == 0 )
-		{
-			return render( array( 'code' => 0 , 'data' =>  $data['data'] ) , 'rest' );
-		}
-		else
-			return render( array( 'code' => 100002 , 'message' => 'can not save data' ) , 'rest' );
-		//return render( array( 'code' => 0 , 'data' => $data['data'] ) , 'rest' );
-	}
-	return render( array( 'code' => 100001 , 'message' => 'can not get api content' ) , 'rest' );
+	return calendar_request('todo_calendar_update');
 }
 
+//CALENDAR UPDATE API(优先级，预期开始时间，预期结束时间)
 add_action( 'API_TODO_CALENDAR_UPDATE' , 'api_todo_calendar_update' );
 function api_todo_calendar_update()
 {
-	#TODO: create and update
 	$tid = v('tid');
 	$exp_start_time =  v('exp_start_time');
 	$exp_finish_time = v('exp_finish_time');
@@ -149,9 +157,62 @@ function api_todo_calendar_update()
 	return apiController::send_result(run_sql($sql));
 }
 
+//通过API_TODO_DONE_OUTPUT_FILTER hook在关闭todo时设置结束时间
+add_action( 'API_TODO_DONE_OUTPUT_FILTER' , 'calendar_finish_todo' );
+function calendar_finish_todo($data)
+{
+	$tid = $data['tid'];
+	$sql = "update `todo_timetable` set act_finish_time='". date("Y-m-d H:i:s") ."' where tid = '{$tid}'";
+	run_sql($sql);
+	return $data;
+}
+
+//API_TODO_REOPEN_OUTPUT_FILTER hook在重新打开todo时清除结束时间
+add_action( 'API_TODO_REOPEN_OUTPUT_FILTER' , 'calendar_reopen_todo' );
+function calendar_reopen_todo($data)
+{
+	$tid = $data['tid'];
+	$sql = "update `todo_timetable` set act_finish_time=NULL where tid = '{$tid}'";
+	run_sql($sql);
+	return $data;
+}
+
+//前台调用CALENDAR START TODO API
+add_action( 'PLUGIN_CALENDAR_START_TODO' , 'plugin_calendar_start_todo' );
+function plugin_calendar_start_todo()
+{
+	return calendar_request('calendar_start_todo');
+}
+
+//START TODO API,设置开始时间
+add_action( 'API_CALENDAR_START_TODO' , 'api_calendar_start_todo' );
+function api_calendar_start_todo()
+{
+	$tid = v('tid');
+	$sql = "update `todo_timetable` set act_start_time='". date("Y-m-d H:i:s") ."' where tid = '{$tid}'";
+	return apiController::send_result( run_sql($sql) ); 
+}
+
+//日历插件页面，显示日历
 add_action( 'PLUGIN_CALENDAR' , 'calendar_view' );
 function calendar_view()
 {
 	$data['top'] = $data['top_title'] = __('PL_CALENDAR_TITLE');
 	return render( $data , 'web' , 'plugin' , 'calendar' );
+}
+
+
+function calendar_request($action){
+	if($content = send_request( $action ,  array() , token()  ))
+	{
+		$data = json_decode($content , 1);
+		if( $data['err_code'] == 0 )
+		{
+			return render( array( 'code' => 0 , 'data' =>  $data['data'] ) , 'rest' );
+		}
+		else
+			return render( array( 'code' => 100002 , 'message' => 'can not save data' ) , 'rest' );
+		//return render( array( 'code' => 0 , 'data' => $data['data'] ) , 'rest' );
+	}
+	return render( array( 'code' => 100001 , 'message' => 'can not get api content' ) , 'rest' );
 }

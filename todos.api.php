@@ -1,11 +1,13 @@
 <?php
 
-$from = date("Y-m-d 00:00:00", int($_GET['from'])/1000);
-$to = date("Y-m-d 00:00:00", int($_GET['to'])/1000);
+$from = date("Y-m-d 00:00:00", intval($_GET['from'])/1000);
+$to = date("Y-m-d 00:00:00", intval($_GET['to'])/1000);
 
 
 
 $todos = array();
+
+
 
 $todos[] = array(
     "id"=> 293,
@@ -17,11 +19,11 @@ $todos[] = array(
     "end"=>   1396948567000 // Milliseconds
 );
 
+
 $result = array(
     "success"=>1,
     "result" => $todos
 );
-
 
 echo json_encode($result);
 
