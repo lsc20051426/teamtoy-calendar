@@ -44,7 +44,7 @@ function calendar_start_todo(tid)
 	"use strict";
 
 	var options = {
-		events_source: "plugin/calendar/todos.api.php",
+		events_source: "?c=plugin&a=todo_list",
 		view: 'month',
 		tmpl_path: 'plugin/calendar/bootstrap-calendar/',
 		tmpl_cache: false,

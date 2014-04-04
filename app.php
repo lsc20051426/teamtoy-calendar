@@ -202,6 +202,89 @@ function calendar_view()
 }
 
 
+//用于CALENDAR页面展示TODO列表 API
+add_action( 'PLUGIN_TODO_LIST' , 'api_todo_list' );
+function api_todo_list()
+{
+	$from = date("Y-m-d H:i:s", intval($_GET['from'])/1000);
+	$to = date("Y-m-d H:i:s", intval($_GET['to'])/1000);
+
+	$todos = array();
+	$sql = "select todo.id,todo.content,todo.timeline,
+		user.name,
+		todo_user.status, todo_user.last_action_at,
+		todo_timetable.priority,
+		todo_timetable.exp_start_time,
+		todo_timetable.act_start_time,
+		todo_timetable.exp_finish_time,
+		todo_timetable.act_finish_time
+		from todo
+		left join todo_timetable on todo.id = todo_timetable.tid 
+		left join todo_user on todo_user.tid = todo.id
+		left join user on todo.owner_uid=user.id
+	";
+	$data = get_data($sql);
+
+	foreach($data as $todo){
+		$calendar_todo = array(
+			"id"=> $todo['id'],
+			"modal"=> "#events-modal",
+			"title"=> "[".$todo['name']."]" . $todo['content'],
+		);
+		$calendar_todo["url"] =  "http://example.com";
+		if(isset($todo['exp_start_time'])){
+			$calendar_todo["start"] = strtotime($todo['exp_start_time'])*1000;
+		}else{
+			$calendar_todo["start"] = strtotime($todo['timeline'])*1000;
+		}
+		if(isset($todo['exp_finish_time'])){
+			$calendar_todo["end"] = strtotime($todo['exp_finish_time'])*1000;
+		}else{
+			$calendar_todo["end"] = strtotime($todo['last_action_at'])*1000;
+		}
+		if(isset($todo['act_finish_time'])){
+			$calendar_todo["end"] = strtotime($todo['act_finish_time'])*1000;
+		}
+
+		if($todo['status']==3){
+			$calendar_todo["class"] = "event-success";
+		}else if($todo['status']==1){
+			if(isset($todo['priority'])){
+				if($todo['priority']=="HIGH"){
+					$calendar_todo["class"] = "event-important";
+				}else if($todo['priority']=="MEDIUM"){
+					$calendar_todo["class"] = "event-warning";
+				}else if($todo['priority']=="LOW"){
+					$calendar_todo["class"] = "event-info";
+				}else{
+					$calendar_todo["class"] = "event-simple";
+				}
+			}else{
+				$calendar_todo["class"] = "event-simple";
+			}
+			if(isset($todo['exp_finish_time'])&&strtotime($todo['exp_finish_time'])<time()){
+				$calendar_todo["class"] = "event-important";
+			}
+		} else{
+			$calendar_todo["class"] = "event-simple";
+		}
+	
+		$calendar_todo["url"] =  "http://example.com";
+		if($calendar_todo['start'])
+		$todos[] = $calendar_todo;
+	}
+	
+	$result = array(
+		"success"=>1,
+		"result" => $todos
+	);
+	
+	echo json_encode($result);
+}
+
+
+
+
 function calendar_request($action){
 	if($content = send_request( $action ,  array() , token()  ))
 	{

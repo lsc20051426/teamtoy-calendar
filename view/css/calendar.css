@@ -7,6 +7,9 @@
   width: 100%;
   *zoom: 1;
 }
+.cal-context{
+  background-color: #FFFFFA;
+}
 .cal-row-fluid:before,
 .cal-row-fluid:after {
   display: table;
