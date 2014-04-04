@@ -228,7 +228,7 @@ function api_todo_list()
 	foreach($data as $todo){
 		$calendar_todo = array(
 			"id"=> $todo['id'],
-			"modal"=> "#events-modal",
+			//"modal"=> "#events-modal",
 			"title"=> "[".$todo['name']."]" . $todo['content'],
 		);
 		$calendar_todo["url"] =  "http://example.com";

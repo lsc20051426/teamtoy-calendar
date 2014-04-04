@@ -36,7 +36,6 @@ $("#exp_start_time").datetimepicker({
    language: 'zh-CN',
    startDate: new Date().Format("yyyy-MM-dd")
 }).on('changeDate', function(ev){
-   alert(ev.date.Format("yyyy-MM-dd"));
    $('#exp_finish_time').datetimepicker('remove');
    $('#exp_finish_time').datetimepicker({
 	  format: 'yyyy-mm-dd hh:ii:ss',

@@ -74,9 +74,11 @@ function calendar_start_todo(tid)
 		},
 		first_day: 1,
 		modal: '#events-modal',
+		modal_type : "template",
+		//modal_title : function (e) { return e.title },
 		language: 'zh-CN'
 	};
-
+	
 	var calendar = $('#calendar').calendar(options);
 
 	$('.btn-group button[data-calendar-nav]').each(function() {
